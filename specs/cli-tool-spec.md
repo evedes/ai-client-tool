@@ -1154,7 +1154,7 @@ This project should be broken into **5 phases** with clear milestones and depend
 - **Ticket 3.2**: Interactive REPL with readline
   - Create basic `chat` command using Node.js `readline`
   - Implement input loop with prompt
-  - Handle special commands (`/exit`, `/reset`, `/stats`)
+  - Handle special commands (`/exit`, `/reset`, `/stats`, `/history`)
   - **Deliverable**: Basic interactive chat (no Ink yet)
 
 - **Ticket 3.3**: Integrate conversation into chat
@@ -1163,11 +1163,13 @@ This project should be broken into **5 phases** with clear milestones and depend
   - Display assistant responses
   - **Deliverable**: Multi-turn conversations work
 
-- **Ticket 3.4**: Session statistics
+- **Ticket 3.4**: Session statistics (CostTracker class)
+  - Create dedicated `CostTracker` class for session-level statistics
   - Add cumulative cost tracking per session
-  - Implement `/stats` command
+  - Implement `/stats` command in chat
   - Show stats on `/exit`
-  - **Deliverable**: Session-level cost visibility
+  - Support reset functionality with `/reset` command
+  - **Deliverable**: Session-level cost visibility with dedicated tracker class
 
 **Milestone 3**: Working interactive chat with history ✅
 
