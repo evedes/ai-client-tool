@@ -36,11 +36,13 @@ export class AnthropicClient {
     messages: Message[]
   ): Promise<{ content: string; usage: UsageStats }> {
     try {
-      // Convert our Message format to Anthropic SDK format
-      const apiMessages = messages.map((m) => ({
-        role: m.role as 'user' | 'assistant', // Filter out 'system' role
-        content: m.content,
-      }));
+      // Filter out 'system' role messages and convert to Anthropic SDK format
+      const apiMessages = messages
+        .filter((m) => m.role !== 'system')
+        .map((m) => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        }));
 
       // Call Anthropic API
       const response = await this.client.messages.create({
@@ -50,11 +52,11 @@ export class AnthropicClient {
         messages: apiMessages,
       });
 
-      // Extract text content from response
-      const content = response.content
-        .filter((block) => block.type === 'text')
-        .map((block) => (block.type === 'text' ? block.text : ''))
-        .join('\n');
+      // Extract text content from response (first text block per spec)
+      const content =
+        response.content[0]?.type === 'text'
+          ? response.content[0].text
+          : '';
 
       // Calculate usage statistics and costs
       const usage = this.calculateUsage(
@@ -83,8 +85,10 @@ export class AnthropicClient {
     const pricing = this.config.pricing[this.config.defaultModel];
 
     if (!pricing) {
-      throw new Error(
-        `Pricing not configured for model: ${this.config.defaultModel}`
+      throw classifyError(
+        new Error(
+          `Pricing not configured for model: ${this.config.defaultModel}`
+        )
       );
     }
 
