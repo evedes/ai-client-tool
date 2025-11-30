@@ -80,6 +80,11 @@ export function classifyError(error: any): AIClientError {
     return error;
   }
   
+  // Handle null/undefined
+  if (!error) {
+    return new AIClientError('Unknown error');
+  }
+  
   // Extract status code (handle both 'status' and 'statusCode' properties)
   const statusCode = error.status || error.statusCode;
   

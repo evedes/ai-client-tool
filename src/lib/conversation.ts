@@ -72,6 +72,10 @@ export class ConversationManager {
     }
 
     const maxMessages = this.historyConfig.maxMessages;
+    // Handle edge case: maxMessages = 0 should return empty array
+    if (maxMessages === 0) {
+      return [];
+    }
     // Return the last N messages (sliding window)
     return this.conversation.messages.slice(-maxMessages);
   }
