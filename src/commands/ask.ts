@@ -24,9 +24,14 @@ export async function askCommand(prompt: string, options: AskOptions): Promise<v
     
     const client = new AnthropicClient(config);
     
-    const { content, usage } = await client.sendMessage([
-      { role: 'user', content: prompt, timestamp: Date.now() }
-    ]);
+    const { content, usage } = await client.sendMessage(
+      [{ role: 'user', content: prompt, timestamp: Date.now() }],
+      (attempt, delay) => {
+        if (options.debug) {
+          console.log(`[DEBUG] Retry attempt ${attempt} after ${Math.round(delay)}ms`);
+        }
+      }
+    );
     
     console.log(content);
     console.log();
