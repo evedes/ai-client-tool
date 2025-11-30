@@ -147,17 +147,21 @@ export interface HistoryConfig {
 ```json
 {
   "apiKey": "env:ANTHROPIC_API_KEY",
-  "defaultModel": "claude-3-5-sonnet-20241022",
+  "defaultModel": "claude-sonnet-4-5-20250929",
   "maxTokens": 1024,
   "temperature": 0.7,
   "pricing": {
-    "claude-3-5-sonnet-20241022": {
+    "claude-sonnet-4-5-20250929": {
       "inputPer1k": 0.003,
       "outputPer1k": 0.015
     },
-    "claude-3-5-haiku-20241022": {
+    "claude-haiku-4-5-20251001": {
       "inputPer1k": 0.001,
       "outputPer1k": 0.005
+    },
+    "claude-opus-4-5-20251101": {
+      "inputPer1k": 0.005,
+      "outputPer1k": 0.025
     }
   },
   "retry": {
@@ -925,13 +929,21 @@ mkdir -p ~/.ai-client
 cat > ~/.ai-client/config.json << 'EOF'
 {
   "apiKey": "env:ANTHROPIC_API_KEY",
-  "defaultModel": "claude-3-5-sonnet-20241022",
+  "defaultModel": "claude-sonnet-4-5-20250929",
   "maxTokens": 1024,
   "temperature": 0.7,
   "pricing": {
-    "claude-3-5-sonnet-20241022": {
+    "claude-sonnet-4-5-20250929": {
       "inputPer1k": 0.003,
       "outputPer1k": 0.015
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputPer1k": 0.001,
+      "outputPer1k": 0.005
+    },
+    "claude-opus-4-5-20251101": {
+      "inputPer1k": 0.005,
+      "outputPer1k": 0.025
     }
   },
   "retry": {
@@ -963,7 +975,7 @@ ai-client chat
 ai-client ask "Explain TypeScript generics"
 
 # Use different model
-ai-client chat --model claude-3-5-haiku-20241022
+ai-client chat --model claude-haiku-4-5-20251001
 
 # Enable debug mode
 ai-client chat --debug
