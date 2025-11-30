@@ -1,17 +1,36 @@
 import { Conversation, Message, HistoryConfig } from '../types/index.js';
+import { loadSession, saveSession } from '../utils/storage.js';
 import * as crypto from 'crypto';
 
 /**
  * Manages conversation state for multi-turn chat sessions.
  * Implements sliding window context management based on configuration.
+ * Supports persistence to resume conversations across sessions.
  */
 export class ConversationManager {
   private conversation: Conversation;
   private historyConfig: HistoryConfig;
 
-  constructor(historyConfig: HistoryConfig) {
+  /**
+   * Creates a new ConversationManager.
+   * @param historyConfig - Configuration for conversation history
+   * @param sessionId - Optional session ID to resume previous conversation
+   */
+  constructor(historyConfig: HistoryConfig, sessionId?: string) {
     this.historyConfig = historyConfig;
-    this.conversation = this.createNewConversation();
+    
+    if (sessionId) {
+      const loaded = loadSession(sessionId);
+      if (loaded) {
+        this.conversation = loaded;
+        console.log(`Resumed session ${sessionId} with ${loaded.messages.length} messages`);
+      } else {
+        console.warn(`Session ${sessionId} not found, starting new conversation`);
+        this.conversation = this.createNewConversation();
+      }
+    } else {
+      this.conversation = this.createNewConversation();
+    }
   }
 
   /**
@@ -70,5 +89,23 @@ export class ConversationManager {
    */
   getConversation(): Conversation {
     return this.conversation;
+  }
+
+  /**
+   * Persists the current conversation to disk.
+   * Creates or updates the session file in ~/.ai-client/sessions/
+   */
+  save(): void {
+    if (this.conversation.messages.length > 0) {
+      saveSession(this.conversation);
+    }
+  }
+
+  /**
+   * Gets the current session ID.
+   * @returns The UUID of the current conversation
+   */
+  getSessionId(): string {
+    return this.conversation.id;
   }
 }

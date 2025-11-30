@@ -1,8 +1,10 @@
 import { SessionStats, UsageStats } from '../types/index.js';
+import { loadStats, saveStats } from '../utils/storage.js';
 
 /**
  * Tracks cumulative session-level cost and token usage statistics.
  * Provides formatted output for displaying usage information to users.
+ * Supports persistence to disk for global lifetime statistics.
  */
 export class CostTracker {
   private stats: SessionStats = {
@@ -11,6 +13,19 @@ export class CostTracker {
     totalCost: 0,
     requestCount: 0,
   };
+
+  /**
+   * Creates a new CostTracker, optionally loading persisted stats.
+   * @param loadPersisted - If true, loads and merges global stats from disk
+   */
+  constructor(loadPersisted: boolean = false) {
+    if (loadPersisted) {
+      const persistedStats = loadStats();
+      if (persistedStats) {
+        this.stats = persistedStats;
+      }
+    }
+  }
 
   /**
    * Adds usage statistics from a single API request to the session totals.
@@ -64,5 +79,13 @@ Session Stats:
     this.stats.totalOutputTokens = 0;
     this.stats.totalCost = 0;
     this.stats.requestCount = 0;
+  }
+
+  /**
+   * Persists current statistics to disk.
+   * Merges with any existing global stats.
+   */
+  persist(): void {
+    saveStats(this.stats);
   }
 }

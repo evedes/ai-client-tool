@@ -1,5 +1,6 @@
 import { loadConfig } from '../lib/config.js';
 import { AnthropicClient } from '../lib/anthropic-client.js';
+import { CostTracker } from '../lib/cost-tracker.js';
 import { AuthError, RateLimitError, NetworkError } from '../lib/errors.js';
 
 interface AskOptions {
@@ -23,6 +24,7 @@ export async function askCommand(prompt: string, options: AskOptions): Promise<v
     }
     
     const client = new AnthropicClient(config);
+    const costTracker = new CostTracker(true); // Load persisted stats
     
     const { content, usage } = await client.sendMessage(
       [{ role: 'user', content: prompt, timestamp: Date.now() }],
@@ -33,9 +35,13 @@ export async function askCommand(prompt: string, options: AskOptions): Promise<v
       }
     );
     
+    // Update and persist stats
+    costTracker.addUsage(usage);
+    costTracker.persist();
+    
     console.log(content);
     console.log();
-    console.log(`Usage: ${usage.inputTokens} in / ${usage.outputTokens} out tokens — $${usage.totalCost.toFixed(4)}`);
+    console.log(costTracker.formatUsage(usage));
     
     process.exit(0);
   } catch (error: any) {

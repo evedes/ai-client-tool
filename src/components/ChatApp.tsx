@@ -14,9 +14,10 @@ import { Config, Message as MessageType } from '../types/index.js';
 interface Props {
   config: Config;
   debug?: boolean;
+  sessionId?: string;
 }
 
-export const ChatApp: React.FC<Props> = ({ config, debug }) => {
+export const ChatApp: React.FC<Props> = ({ config, debug, sessionId }) => {
   const { exit } = useApp();
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState('');
@@ -25,8 +26,15 @@ export const ChatApp: React.FC<Props> = ({ config, debug }) => {
   const [lastTokens, setLastTokens] = useState<{ in: number; out: number } | undefined>();
   
   const [client] = useState(() => new AnthropicClient(config));
-  const [conversationManager] = useState(() => new ConversationManager(config.history));
-  const [costTracker] = useState(() => new CostTracker());
+  const [conversationManager] = useState(() => new ConversationManager(config.history, sessionId));
+  const [costTracker] = useState(() => new CostTracker(true)); // Load persisted stats
+  
+  // Load existing messages if resuming
+  useState(() => {
+    if (sessionId) {
+      setMessages(conversationManager.getMessages());
+    }
+  });
   
   const handleSubmit = async () => {
     if (!input.trim() || isLoading) return;
@@ -97,6 +105,8 @@ export const ChatApp: React.FC<Props> = ({ config, debug }) => {
       
       conversationManager.addMessage('assistant', content);
       costTracker.addUsage(usage);
+      costTracker.persist(); // Save stats after each response
+      conversationManager.save(); // Auto-save conversation
       setMessages([...conversationManager.getMessages()]);
       setLastTokens({ in: usage.inputTokens, out: usage.outputTokens });
       
