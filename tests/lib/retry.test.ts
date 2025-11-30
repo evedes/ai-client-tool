@@ -2,10 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { withRetry } from '@/lib/retry.js';
 import { RateLimitError, ServerError, AuthError, NetworkError } from '@/lib/errors.js';
 import type { RetryConfig } from '@/types/index.js';
+import type { Mock } from 'vitest';
 
 describe('withRetry', () => {
-  let mockOperation: ReturnType<typeof vi.fn>;
-  let mockOnRetry: ReturnType<typeof vi.fn>;
+  let mockOperation: Mock;
+  let mockOnRetry: Mock;
   const defaultConfig: RetryConfig = {
     maxRetries: 3,
     baseDelayMs: 100,

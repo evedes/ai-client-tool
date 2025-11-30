@@ -1,0 +1,29 @@
+{
+  "apiKey": "env:ANTHROPIC_API_KEY",
+  "defaultModel": "claude-sonnet-4-5-20250929",
+  "maxTokens": 8192,
+  "temperature": 0.5,
+  "retry": {
+    "maxRetries": 5,
+    "baseDelayMs": 1000,
+    "maxDelayMs": 16000
+  },
+  "history": {
+    "enabled": true,
+    "maxMessages": 50
+  },
+  "pricing": {
+    "claude-sonnet-4-5-20250929": {
+      "inputPer1k": 0.003,
+      "outputPer1k": 0.015
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputPer1k": 0.001,
+      "outputPer1k": 0.005
+    },
+    "claude-opus-4-5-20251101": {
+      "inputPer1k": 0.005,
+      "outputPer1k": 0.025
+    }
+  }
+}

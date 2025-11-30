@@ -1,0 +1,3 @@
+{
+  "apiKey": "env:ANTHROPIC_API_KEY"
+}

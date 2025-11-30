@@ -1,14 +1,37 @@
+/**
+ * Ask Command Handler
+ * Provides single-shot query functionality without conversation history
+ */
+
 import { loadConfig } from '../lib/config.js';
 import { AnthropicClient } from '../lib/anthropic-client.js';
 import { CostTracker } from '../lib/cost-tracker.js';
 import { AuthError, RateLimitError, NetworkError } from '../lib/errors.js';
 
+/**
+ * Options for the ask command
+ */
 interface AskOptions {
+  /** Override the default model from config */
   model?: string;
+  /** Path to custom config file */
   config?: string;
+  /** Enable debug output */
   debug?: boolean;
 }
 
+/**
+ * Executes a single query to Claude and displays the response.
+ * Updates global usage statistics and handles errors gracefully.
+ * 
+ * @param prompt - The question or prompt to send to Claude
+ * @param options - Command options for model override, config path, and debug mode
+ * 
+ * @example
+ * ```typescript
+ * await askCommand('What is the capital of France?', { debug: false });
+ * ```
+ */
 export async function askCommand(prompt: string, options: AskOptions): Promise<void> {
   try {
     const config = loadConfig(options.config);
