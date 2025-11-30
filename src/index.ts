@@ -1,5 +1,33 @@
 #!/usr/bin/env node
 
+/**
+ * AI Client Tool - CLI Entry Point
+ * 
+ * Command-line interface for interacting with Anthropic's Claude AI models.
+ * Provides interactive chat, single-shot queries, usage statistics, and session management.
+ * 
+ * @module ai-client
+ * @version 1.0.0
+ * 
+ * @example
+ * ```bash
+ * # Single-shot query
+ * ai-client ask "What is the capital of France?"
+ * 
+ * # Interactive chat
+ * ai-client chat
+ * 
+ * # Resume previous session
+ * ai-client chat --resume abc-123-uuid
+ * 
+ * # View usage statistics
+ * ai-client stats
+ * 
+ * # List saved sessions
+ * ai-client sessions
+ * ```
+ */
+
 import { Command } from 'commander';
 import { askCommand } from './commands/ask.js';
 import { chatCommand } from './commands/chat.js';

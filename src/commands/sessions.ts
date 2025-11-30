@@ -1,10 +1,38 @@
+/**
+ * Sessions Command Handler
+ * Lists and manages saved conversation sessions
+ */
+
 import { listSessions } from '../utils/storage.js';
 
+/**
+ * Options for the sessions command
+ */
 interface SessionsOptions {
+  /** Enable cleanup of old sessions (not yet implemented) */
   cleanup?: boolean;
+  /** Specify age threshold for cleanup (e.g., "30d") */
   olderThan?: string;
 }
 
+/**
+ * Lists all saved conversation sessions with metadata.
+ * Shows session ID, message count, last activity time, and creation date.
+ * Sessions are sorted by most recent activity first.
+ * 
+ * @param options - Command options for cleanup and filtering (reserved for future use)
+ * 
+ * @example
+ * ```typescript
+ * await sessionsCommand({});
+ * // Output:
+ * // Available Sessions:
+ * // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * // 📝 abc-123-uuid
+ * //    Messages: 15 | Last activity: 2 hours ago
+ * //    Created: 11/30/2025, 10:30:00 AM
+ * ```
+ */
 export async function sessionsCommand(options: SessionsOptions): Promise<void> {
   const sessions = listSessions();
   
@@ -38,6 +66,11 @@ export async function sessionsCommand(options: SessionsOptions): Promise<void> {
   console.log();
 }
 
+/**
+ * Converts a timestamp to a human-readable "time ago" string
+ * @param timestamp - Unix timestamp in milliseconds
+ * @returns Human-readable duration string (e.g., "5 minutes", "2 days")
+ */
 function getAge(timestamp: number): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
   

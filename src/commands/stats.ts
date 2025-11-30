@@ -1,9 +1,39 @@
+/**
+ * Stats Command Handler
+ * Displays global usage statistics from all CLI invocations
+ */
+
 import { loadStats } from '../utils/storage.js';
 
+/**
+ * Options for the stats command
+ */
 interface StatsOptions {
+  /** Path to custom config file (reserved for future use) */
   config?: string;
 }
 
+/**
+ * Displays comprehensive usage statistics including token counts,
+ * total cost, request count, and average cost per request.
+ * Statistics are accumulated across all CLI invocations.
+ * 
+ * @param _options - Command options (currently unused, reserved for future features)
+ * 
+ * @example
+ * ```typescript
+ * await statsCommand({});
+ * // Output:
+ * // Global Usage Statistics:
+ * // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * //   Input tokens:    1,234
+ * //   Output tokens:   5,678
+ * //   Total tokens:    6,912
+ * //   Total cost:      $0.0523
+ * //   Total requests:  12
+ * //   Avg cost/request: $0.0044
+ * ```
+ */
 export async function statsCommand(_options: StatsOptions): Promise<void> {
   const stats = loadStats();
   
