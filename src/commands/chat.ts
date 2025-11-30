@@ -2,6 +2,7 @@ import * as readline from 'readline';
 import { loadConfig } from '../lib/config.js';
 import { AnthropicClient } from '../lib/anthropic-client.js';
 import { ConversationManager } from '../lib/conversation.js';
+import { CostTracker } from '../lib/cost-tracker.js';
 import { AuthError, RateLimitError, NetworkError, ServerError } from '../lib/errors.js';
 
 interface ChatOptions {
@@ -28,12 +29,7 @@ export async function chatCommand(options: ChatOptions): Promise<void> {
     
     const client = new AnthropicClient(config);
     const conversationManager = new ConversationManager(config.history);
-    
-    // Session statistics tracking
-    let totalCost = 0;
-    let totalInputTokens = 0;
-    let totalOutputTokens = 0;
-    let requestCount = 0;
+    const costTracker = new CostTracker();
     
     console.log(`Model: ${config.defaultModel}`);
     console.log('Type /reset to clear history, /stats for statistics, /exit to quit.\n');
@@ -57,11 +53,8 @@ export async function chatCommand(options: ChatOptions): Promise<void> {
       
       // Handle special commands
       if (userInput === '/exit') {
-        console.log('\nSession Stats:');
-        console.log(`- Input tokens:  ${totalInputTokens}`);
-        console.log(`- Output tokens: ${totalOutputTokens}`);
-        console.log(`- Total cost:    $${totalCost.toFixed(4)}`);
-        console.log(`- Requests:      ${requestCount}`);
+        console.log();
+        console.log(costTracker.formatStats());
         console.log('\nGoodbye!');
         rl.close();
         process.exit(0);
@@ -70,21 +63,15 @@ export async function chatCommand(options: ChatOptions): Promise<void> {
       
       if (userInput === '/reset') {
         conversationManager.reset();
-        totalCost = 0;
-        totalInputTokens = 0;
-        totalOutputTokens = 0;
-        requestCount = 0;
+        costTracker.reset();
         console.log('Conversation reset.\n');
         rl.prompt();
         return;
       }
       
       if (userInput === '/stats') {
-        console.log('\nSession Stats:');
-        console.log(`- Input tokens:  ${totalInputTokens}`);
-        console.log(`- Output tokens: ${totalOutputTokens}`);
-        console.log(`- Total cost:    $${totalCost.toFixed(4)}`);
-        console.log(`- Requests:      ${requestCount}`);
+        console.log();
+        console.log(costTracker.formatStats());
         console.log();
         rl.prompt();
         return;
@@ -136,15 +123,12 @@ export async function chatCommand(options: ChatOptions): Promise<void> {
         conversationManager.addMessage('assistant', content);
         
         // Update session statistics
-        totalInputTokens += usage.inputTokens;
-        totalOutputTokens += usage.outputTokens;
-        totalCost += usage.totalCost;
-        requestCount += 1;
+        costTracker.addUsage(usage);
         
         // Display response
         console.log(`claude> ${content}`);
         console.log();
-        console.log(`Usage: ${usage.inputTokens} in / ${usage.outputTokens} out tokens — $${usage.totalCost.toFixed(4)} (session: $${totalCost.toFixed(4)})`);
+        console.log(costTracker.formatUsage(usage));
         console.log();
         
       } catch (error: any) {
@@ -178,11 +162,8 @@ export async function chatCommand(options: ChatOptions): Promise<void> {
     });
     
     rl.on('close', () => {
-      console.log('\nSession Stats:');
-      console.log(`- Input tokens:  ${totalInputTokens}`);
-      console.log(`- Output tokens: ${totalOutputTokens}`);
-      console.log(`- Total cost:    $${totalCost.toFixed(4)}`);
-      console.log(`- Requests:      ${requestCount}`);
+      console.log();
+      console.log(costTracker.formatStats());
       console.log('\nGoodbye!');
       process.exit(0);
     });
